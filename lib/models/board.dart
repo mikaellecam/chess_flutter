@@ -1,6 +1,7 @@
 import 'package:chess_flutter/models/move.dart';
 import 'package:chess_flutter/models/piece.dart';
 import 'package:chess_flutter/models/position.dart';
+import 'package:chess_flutter/utils/check_detection.dart';
 
 import '../utils/piece_movement.dart';
 
@@ -10,6 +11,7 @@ class Board {
   final Position? selectedPosition;
   final Set<Position> validMoves;
   final List<Move> moveHistory;
+  final bool isInCheck;
 
   Board._({
     required List<List<Piece?>> board,
@@ -17,6 +19,7 @@ class Board {
     this.selectedPosition,
     required this.validMoves,
     required this.moveHistory,
+    required this.isInCheck,
   }) : _board = board;
 
   factory Board.initial() {
@@ -24,12 +27,20 @@ class Board {
 
     _setupInitialPosition(board);
 
-    return Board._(
+    final chessBoard = Board._(
       board: board,
       currentTurn: PieceColor.white,
       validMoves: {},
       moveHistory: [],
+      isInCheck: false,
     );
+
+    final inCheck = CheckDetection.isInCheck(
+      chessBoard,
+      PieceColor.white,
+    ); // A bit overkill
+
+    return chessBoard._copyWith(isInCheck: inCheck);
   }
 
   static void _setupInitialPosition(List<List<Piece?>> board) {
@@ -94,11 +105,27 @@ class Board {
     newBoard[to.row][to.col] = piece.copyWith(hasMoved: true);
     newBoard[from.row][from.col] = null;
 
+    final tempBoard = Board._(
+      board: newBoard,
+      currentTurn:
+          currentTurn == PieceColor.white ? PieceColor.black : PieceColor.white,
+      selectedPosition: null,
+      validMoves: {},
+      moveHistory: moveHistory,
+      isInCheck: false,
+    );
+
+    final nextPlayerInCheck = CheckDetection.isInCheck(
+      tempBoard,
+      tempBoard.currentTurn,
+    );
+
     final move = Move(
       from: from,
       to: to,
       capturedPiece: _board[to.row][to.col],
       isCapture: _board[to.row][to.col] != null,
+      isCheck: nextPlayerInCheck,
     );
 
     return Board._(
@@ -108,6 +135,7 @@ class Board {
       selectedPosition: null,
       validMoves: {},
       moveHistory: [...moveHistory, move],
+      isInCheck: nextPlayerInCheck,
     );
   }
 
@@ -117,6 +145,7 @@ class Board {
     Position? selectedPosition,
     Set<Position>? validMoves,
     List<Move>? moveHistory,
+    bool? isInCheck,
   }) {
     return Board._(
       board: board ?? List.generate(8, (i) => List<Piece?>.from(_board[i])),
@@ -124,6 +153,24 @@ class Board {
       selectedPosition: selectedPosition,
       validMoves: validMoves ?? Set<Position>.from(this.validMoves),
       moveHistory: moveHistory ?? List<Move>.from(this.moveHistory),
+      isInCheck: isInCheck ?? this.isInCheck,
+    );
+  }
+
+  get board => _board;
+
+  factory Board.simulate({
+    required List<List<Piece?>> board,
+    required PieceColor currentTurn,
+    required List<Move> moveHistory,
+  }) {
+    return Board._(
+      board: board,
+      currentTurn: currentTurn,
+      selectedPosition: null,
+      validMoves: {},
+      moveHistory: moveHistory,
+      isInCheck: false,
     );
   }
 }

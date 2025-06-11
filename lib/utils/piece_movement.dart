@@ -2,26 +2,57 @@ import 'package:chess_flutter/models/board.dart';
 import 'package:chess_flutter/models/position.dart';
 
 import '../models/piece.dart';
+import 'check_detection.dart';
 
 class PieceMovement {
   static Set<Position> getValidMoves(Board board, Position position) {
     final piece = board.pieceAt(position);
     if (piece == null || piece.color != board.currentTurn) return {};
 
+    Set<Position> possibleMoves;
     switch (piece.type) {
       case PieceType.pawn:
-        return _getPawnMoves(board, position, piece);
+        possibleMoves = _getPawnMoves(board, position, piece);
+        break;
       case PieceType.rook:
-        return _getRookMoves(board, position, piece);
+        possibleMoves = _getRookMoves(board, position, piece);
+        break;
       case PieceType.knight:
-        return _getKnightMoves(board, position, piece);
+        possibleMoves = _getKnightMoves(board, position, piece);
+        break;
       case PieceType.bishop:
-        return _getBishopMoves(board, position, piece);
+        possibleMoves = _getBishopMoves(board, position, piece);
+        break;
       case PieceType.queen:
-        return _getQueenMoves(board, position, piece);
+        possibleMoves = _getQueenMoves(board, position, piece);
+        break;
       case PieceType.king:
-        return _getKingMoves(board, position, piece);
+        possibleMoves = _getKingMoves(board, position, piece);
+        break;
     }
+    return _filterMovesForCheck(board, position, possibleMoves);
+  }
+
+  static Set<Position> _filterMovesForCheck(
+    Board board,
+    Position fromPosition,
+    Set<Position> possibleMoves,
+  ) {
+    final piece = board.pieceAt(fromPosition);
+    if (piece == null) return {};
+
+    final validMoves = <Position>{};
+
+    for (final toPosition in possibleMoves) {
+      final simulatedBoard = _simulateMove(board, fromPosition, toPosition);
+
+      // Check if this move leaves our king in check
+      if (!CheckDetection.isInCheck(simulatedBoard, piece.color)) {
+        validMoves.add(toPosition);
+      }
+    }
+
+    return validMoves;
   }
 
   static Set<Position> _getPawnMoves(
@@ -168,7 +199,6 @@ class PieceMovement {
           position.col + colOffset,
         );
         if (newPos.isValid) {
-          // TODO Add another check for the new position not checking the king
           final targetPiece = board.pieceAt(newPos);
           if (targetPiece == null || targetPiece.color != piece.color) {
             moves.add(newPos);
@@ -178,6 +208,22 @@ class PieceMovement {
     }
 
     return moves;
+  }
+
+  static Board _simulateMove(Board board, Position from, Position to) {
+    final piece = board.pieceAt(from);
+    if (piece == null) return board;
+
+    final newBoard = List.generate(8, (i) => List<Piece?>.from(board.board[i]));
+
+    newBoard[to.row][to.col] = piece;
+    newBoard[from.row][from.col] = null;
+
+    return Board.simulate(
+      board: newBoard,
+      currentTurn: board.currentTurn,
+      moveHistory: board.moveHistory,
+    );
   }
 
   static Set<Position> _getAllMovesInDirection(
