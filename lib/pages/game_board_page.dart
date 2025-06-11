@@ -31,12 +31,10 @@ class _GameBoardPageState extends State<GameBoardPage> {
 
   void _onSquareTapped(Position position) {
     setState(() {
-      // If we have a selected piece and this is a valid move
       if (_board.selectedPosition != null &&
           _board.validMoves.contains(position)) {
         _board = _board.makeMove(_board.selectedPosition!, position);
       } else {
-        // Select the piece at this position
         _board = _board.selectPosition(position);
       }
     });
@@ -49,85 +47,83 @@ class _GameBoardPageState extends State<GameBoardPage> {
         title: Text(
           '${widget.config.player1Name} vs ${widget.config.player2Name}',
         ),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.transparent,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.black),
             onPressed: () {
-              // TODO: Add game menu (resign, draw, etc.)
+              setState(() {
+                _board = Board.initial();
+                _player1Time = widget.config.timePerPlayer;
+                _player2Time = widget.config.timePerPlayer;
+              });
             },
-            icon: const Icon(Icons.menu),
           ),
         ],
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Player 2 (Black) info - at top
-          GameInfoPanel(
-            board: _board,
-            playerName: widget.config.player2Name,
-            timeRemaining: _player2Time,
-            isCurrentTurn: _board.currentTurn == PieceColor.black,
-            playerColor: PieceColor.black,
-          ),
-
-          // Chess board
-          Expanded(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: BoardWidget(
-                  board: _board,
-                  onSquareTapped: _onSquareTapped,
-                  isFlipped: false, // TODO: Make this configurable
-                ),
-              ),
+          // Player 2 (Black) info - close to top of board
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+            child: GameInfoPanel(
+              board: _board,
+              playerName: widget.config.player2Name,
+              timeRemaining: _player2Time,
+              isCurrentTurn: _board.currentTurn == PieceColor.black,
+              playerColor: PieceColor.black,
             ),
           ),
 
-          // Player 1 (White) info - at bottom
-          GameInfoPanel(
-            board: _board,
-            playerName: widget.config.player1Name,
-            timeRemaining: _player1Time,
-            isCurrentTurn: _board.currentTurn == PieceColor.white,
-            playerColor: PieceColor.white,
+          // Chess board - takes up remaining space
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: BoardWidget(
+              board: _board,
+              onSquareTapped: _onSquareTapped,
+              isFlipped:
+                  false, // TODO: Have all the black pieces flipped as well as the InfoPanel of the black player, simulating a real chess board
+            ),
           ),
 
-          // Move history or game controls
-          Container(
-            height: 60,
+          // Player 1 (White) info - close to bottom of board
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            child: GameInfoPanel(
+              board: _board,
+              playerName: widget.config.player1Name,
+              timeRemaining: _player1Time,
+              isCurrentTurn: _board.currentTurn == PieceColor.white,
+              playerColor: PieceColor.white,
+            ),
+          ),
+
+          // Game controls at the bottom
+          // TODO : Add more controls like undo, redo, and pause/play the timers
+          /*Container(
             padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement resign
-                  },
-                  icon: const Icon(Icons.flag),
-                  label: const Text('Resign'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement draw offer
-                  },
-                  icon: const Icon(Icons.handshake),
-                  label: const Text('Draw'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _board = Board.initial();
-                      _player1Time = widget.config.timePerPlayer;
-                      _player2Time = widget.config.timePerPlayer;
-                    });
-                  },
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('New Game'),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, -2),
                 ),
               ],
             ),
-          ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+
+              ],
+            ),
+          ),*/
         ],
       ),
     );
