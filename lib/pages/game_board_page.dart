@@ -82,7 +82,8 @@ class _GameBoardPageState extends State<GameBoardPage> {
             child: BoardWidget(
               board: _board,
               onSquareTapped: _onSquareTapped,
-              isFlipped: false, // TODO: Make this configurable
+              isFlipped:
+                  false, // TODO: Have all the black pieces flipped as well as the InfoPanel of the black player, simulating a real chess board
             ),
           ),
 
