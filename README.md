@@ -2,15 +2,15 @@
 
 A new Flutter project.
 
-## Getting Started
+## Fixes
 
-This project is a starting point for a Flutter application.
+- Fix a rendering overflow issue when we start the game (after clicking the "Start Game" button on
+  the home screen). (Flemme de traduire)
 
-A few resources to get you started if this is your first Flutter project:
+## Things that can still be done:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Changer l'affichage des pièces (en utilisant des SVGs à la place d'élément ASCII)
+- Changer l'orientation de tous les éléments de l'interface utilisateur pour les pièces noires (pour
+  que les deux joueurs aient la même orientation)
+- Ajouter la possibilité de revenir en arrière dans le jeu (donc ajouter un historique des coups -
+  une simple liste de coups joués)
