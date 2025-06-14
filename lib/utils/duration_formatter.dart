@@ -1,17 +1,13 @@
 class DurationFormatter {
   static String format(Duration duration) {
+    final totalSeconds = duration.inSeconds;
     final minutes = duration.inMinutes;
     final seconds = duration.inSeconds % 60;
 
-    if (minutes > 0 && seconds > 0) {
-      return '${minutes}m ${seconds}s';
-    } else if (minutes > 0) {
-      return '${minutes}m';
-    } else if (seconds > 0) {
-      return '${seconds}s';
-    } else {
-      return '0s';
+    if (totalSeconds <= 0) {
+      return '0:00';
     }
+    return '${minutes.toString().padLeft(1, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   static String formatTimeControl(Duration time, Duration increment) {

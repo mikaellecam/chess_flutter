@@ -5,7 +5,6 @@ import '../models/game_type.dart';
 import '../widgets/custom_time_controls.dart';
 import '../widgets/game_type_selector.dart';
 import '../widgets/player_input_card.dart';
-import '../widgets/welcome_card.dart';
 import 'game_board_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -69,10 +68,6 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 20),
-
-              const WelcomeCard(),
-
-              const SizedBox(height: 24),
 
               PlayerInputCard(
                 player1Controller: _player1Controller,
